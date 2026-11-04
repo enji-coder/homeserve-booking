@@ -61,7 +61,7 @@ export default function AdminDash() {
       <ErrorNote error={error} />
       {tab === "overview" && stats ? (
         <div className="grid gap-4">
-          <div className="grid gap-3 sm:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
             <Stat label="Customers" value={stats.customers} />
             <Stat label="Providers" value={stats.providers} />
             <Stat label="Technicians" value={stats.technicians} />
@@ -79,14 +79,14 @@ export default function AdminDash() {
           </div>
           <div className="rounded-3xl border border-line bg-paper p-4">
             <p className="text-sm font-semibold">Popular categories</p>
-            <ul className="mt-2 text-sm">{stats.popular.map((item) => <li key={item.name} className="flex justify-between border-t border-line py-2"><span>{item.name}</span><span>{item.count}</span></li>)}</ul>
+            <ul className="mt-2 text-sm">{stats.popular.map((item) => <li key={item.name} className="flex justify-between gap-3 border-t border-line py-2"><span className="min-w-0 break-words">{item.name}</span><span className="shrink-0">{item.count}</span></li>)}</ul>
           </div>
         </div>
       ) : null}
       {tab === "customers" ? (
         <div className="grid gap-2">{users.map((person) => (
-          <article key={person.id} className="flex items-center justify-between rounded-3xl border border-line bg-paper px-4 py-3">
-            <span>{person.full_name}<br /><span className="text-sm text-moss">{person.email} · {person.phone}</span></span>
+          <article key={person.id} className="flex flex-wrap items-center justify-between gap-2 rounded-3xl border border-line bg-paper px-4 py-3">
+            <span className="min-w-0 flex-1 break-words">{person.full_name}<br /><span className="text-sm text-moss">{person.email} · {person.phone}</span></span>
             <button className={btnGhost} onClick={async () => { await api.patch(`/api/admin/users/${person.id}`, { status: person.status === "active" ? "suspended" : "active" }); load(); }}>{person.status}</button>
           </article>
         ))}</div>
@@ -125,17 +125,17 @@ export default function AdminDash() {
             <button className={btn}>Add service</button>
           </form>
           <div className="grid gap-2">{listings.map((item) => (
-            <article key={item.id} className="flex items-center justify-between rounded-2xl bg-paper px-3 py-2 text-sm"><span>{item.provider} · {item.service} · {inr(item.price)}</span><button onClick={async () => { await api.patch(`/api/admin/listings/${item.id}`, { status: item.status === "active" ? "inactive" : "active" }); load(); }}>{item.status}</button></article>
+            <article key={item.id} className="flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-paper px-3 py-2 text-sm"><span className="min-w-0 flex-1 break-words">{item.provider} · {item.service} · {inr(item.price)}</span><button className="shrink-0" onClick={async () => { await api.patch(`/api/admin/listings/${item.id}`, { status: item.status === "active" ? "inactive" : "active" }); load(); }}>{item.status}</button></article>
           ))}</div>
         </div>
       ) : null}
       {tab === "bookings" ? (
         <div className="grid gap-3">
           {selected ? <BookingPanel booking={selected} role="admin" onChange={load} /> : null}
-          {bookings.map((booking) => <button key={booking.id} onClick={() => setParams({ tab: "bookings", id: booking.id })} className="flex justify-between rounded-3xl border border-line bg-white px-4 py-3 text-left"><span>{booking.booking_code} · {booking.customer_name} · {booking.service_name} · {prettyDate(booking.scheduled_date)}</span><StatusPill status={booking.status} /></button>)}
+          {bookings.map((booking) => <button key={booking.id} onClick={() => setParams({ tab: "bookings", id: booking.id })} className="flex flex-wrap items-center justify-between gap-2 rounded-3xl border border-line bg-white px-4 py-3 text-left"><span className="min-w-0 flex-1 break-words">{booking.booking_code} · {booking.customer_name} · {booking.service_name} · {prettyDate(booking.scheduled_date)}</span><StatusPill status={booking.status} /></button>)}
         </div>
       ) : null}
-      {tab === "payments" ? <div className="grid gap-2">{payments.map((payment) => <article key={payment.id} className="flex justify-between rounded-2xl bg-paper px-4 py-3 text-sm"><span>{payment.booking_code} · {inr(payment.amount)} · {payment.txn_id || payment.order_id}</span><StatusPill status={payment.status} /></article>)}</div> : null}
+      {tab === "payments" ? <div className="grid gap-2">{payments.map((payment) => <article key={payment.id} className="flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-paper px-4 py-3 text-sm"><span className="min-w-0 flex-1 break-words">{payment.booking_code} · {inr(payment.amount)} · {payment.txn_id || payment.order_id}</span><StatusPill status={payment.status} /></article>)}</div> : null}
       {tab === "coupons" ? (
         <div className="grid gap-4 md:grid-cols-2">
           <form className="grid gap-2" onSubmit={async (event) => { event.preventDefault(); await api.post("/api/coupons", { ...coupon, value: Number(coupon.value), min_amount: Number(coupon.min_amount) }); load(); }}>
@@ -145,12 +145,12 @@ export default function AdminDash() {
             <input className={field} type="number" placeholder="Minimum amount" value={coupon.min_amount} onChange={(event) => setCoupon({ ...coupon, min_amount: event.target.value })} />
             <button className={btn}>Create coupon</button>
           </form>
-          <div className="grid gap-2">{coupons.map((item) => <article key={item.id} className="flex justify-between rounded-2xl bg-paper px-3 py-2 text-sm"><span>{item.code} · {item.discount_type} {item.value}</span><button onClick={async () => { await api.patch(`/api/coupons/${item.id}`, { ...item, is_active: !item.is_active }); load(); }}>{item.is_active ? "active" : "off"}</button></article>)}</div>
+          <div className="grid gap-2">{coupons.map((item) => <article key={item.id} className="flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-paper px-3 py-2 text-sm"><span className="min-w-0 break-words">{item.code} · {item.discount_type} {item.value}</span><button className="shrink-0" onClick={async () => { await api.patch(`/api/coupons/${item.id}`, { ...item, is_active: !item.is_active }); load(); }}>{item.is_active ? "active" : "off"}</button></article>)}</div>
         </div>
       ) : null}
       {tab === "complaints" ? <div className="grid gap-3">{complaints.map((item) => (
         <article key={item.id} className="rounded-3xl border border-line bg-paper p-4">
-          <div className="flex justify-between"><strong>{item.subject}</strong><StatusPill status={item.status} /></div>
+          <div className="flex flex-wrap items-start justify-between gap-2"><strong className="min-w-0 break-words">{item.subject}</strong><StatusPill status={item.status} /></div>
           <p className="text-sm text-moss">{item.customer_name} · {item.booking_code} · {item.description}</p>
           <div className="mt-2 flex flex-wrap gap-2">
             <input className={field} placeholder="Note to the customer" id={`note-${item.id}`} />

@@ -68,10 +68,10 @@ export function BookingPanel({ booking, role, techs = [], onChange }) {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-moss">{booking.booking_code}</p>
-          <h3 className="mt-1 font-display text-3xl">{booking.service_name}</h3>
+          <h3 className="mt-1 break-words font-display text-2xl sm:text-3xl">{booking.service_name}</h3>
           <p className="mt-1 text-sm text-moss">{prettyDate(booking.scheduled_date)} · {booking.scheduled_time} · {booking.city}</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <StatusPill status={booking.status} />
           <StatusPill status={booking.payment_status} />
         </div>
@@ -160,7 +160,7 @@ export function BookingPanel({ booking, role, techs = [], onChange }) {
         <textarea className={`${field} mt-3`} rows="2" placeholder="What was done?" value={remarks} onChange={(event) => setRemarks(event.target.value)} />
       ) : null}
 
-      <div className="mt-3 flex flex-wrap gap-3 text-sm">
+      <div className="mt-3 flex flex-col gap-3 text-sm sm:flex-row sm:flex-wrap">
         {role === "customer" ? <label>Problem photo <input type="file" accept="image/*" onChange={(event) => attach("problem", event.target.files?.[0])} /></label> : null}
         {role === "technician" || role === "provider" ? (
           <>
@@ -186,7 +186,7 @@ export function BookingPanel({ booking, role, techs = [], onChange }) {
           <p className="mt-2 font-display text-3xl">{inr(payOpen.amount)}</p>
           <p className="mt-1 text-sm text-white/70">Test card 4111 1111 1111 1111 · any future expiry · CVV 123. Card 4000 0000 0000 0002 fails.</p>
           <input className={`${field} mt-3`} value={card} onChange={(event) => setCard(event.target.value)} />
-          <div className="mt-3 flex gap-2">
+          <div className="mt-3 flex flex-wrap gap-2">
             <button className={btnClay} disabled={busy} onClick={confirmPay}>Pay now</button>
             <button className={btnGhost} onClick={() => setPayOpen(null)}>Close</button>
           </div>

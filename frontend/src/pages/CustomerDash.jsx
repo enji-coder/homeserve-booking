@@ -83,7 +83,7 @@ export default function CustomerDash() {
       <ErrorNote error={error} />
       {tab === "overview" && dash ? (
         <div className="grid gap-4">
-          <div className="grid gap-3 sm:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
             <Stat label="Upcoming" value={dash.upcoming.length} />
             <Stat label="Past visits" value={dash.previous_count} />
             <Stat label="To pay" value={dash.pending_payments} />
@@ -92,8 +92,8 @@ export default function CustomerDash() {
           <Link to="/services" className={`${btnClay} w-fit`}>Book a service</Link>
           <div className="grid gap-3">
             {dash.recent.map((booking) => (
-              <button key={booking.id} onClick={() => setParams({ tab: "bookings", id: booking.id })} className="flex items-center justify-between rounded-3xl border border-line bg-paper px-4 py-3 text-left">
-                <span><strong>{booking.service_name}</strong><br /><span className="text-sm text-moss">{prettyDate(booking.scheduled_date)} · {booking.provider_name}</span></span>
+              <button key={booking.id} onClick={() => setParams({ tab: "bookings", id: booking.id })} className="flex flex-wrap items-center justify-between gap-2 rounded-3xl border border-line bg-paper px-4 py-3 text-left">
+                <span className="min-w-0 flex-1 break-words"><strong>{booking.service_name}</strong><br /><span className="text-sm text-moss">{prettyDate(booking.scheduled_date)} · {booking.provider_name}</span></span>
                 <StatusPill status={booking.status} />
               </button>
             ))}
@@ -104,8 +104,8 @@ export default function CustomerDash() {
         <div className="grid gap-4">
           {selected ? <BookingPanel booking={selected} role="customer" onChange={load} /> : null}
           {bookings.length === 0 ? <Empty title="No bookings yet" body="Pick a service and a free hour." action={<Link className={btnClay} to="/services">Browse services</Link>} /> : bookings.map((booking) => (
-            <button key={booking.id} onClick={() => setParams({ tab: "bookings", id: booking.id })} className="flex items-center justify-between rounded-3xl border border-line bg-white px-4 py-3 text-left">
-              <span>{booking.booking_code} · {booking.service_name} · {prettyDate(booking.scheduled_date)} {booking.scheduled_time}</span>
+            <button key={booking.id} onClick={() => setParams({ tab: "bookings", id: booking.id })} className="flex flex-wrap items-center justify-between gap-2 rounded-3xl border border-line bg-white px-4 py-3 text-left">
+              <span className="min-w-0 flex-1 break-words">{booking.booking_code} · {booking.service_name} · {prettyDate(booking.scheduled_date)} {booking.scheduled_time}</span>
               <StatusPill status={booking.status} />
             </button>
           ))}
@@ -144,7 +144,7 @@ export default function CustomerDash() {
       ) : null}
       {tab === "payments" ? (
         <div className="overflow-x-auto rounded-3xl border border-line bg-paper">
-          <table className="w-full text-left text-sm">
+          <table className="w-full min-w-[36rem] text-left text-sm">
             <thead className="text-xs uppercase tracking-wider text-moss"><tr><th className="px-4 py-3">Booking</th><th>Amount</th><th>Status</th><th>Receipt</th></tr></thead>
             <tbody>
               {payments.map((payment) => (
@@ -173,7 +173,7 @@ export default function CustomerDash() {
           <div className="grid gap-2">
             {complaints.map((item) => (
               <article key={item.id} className="rounded-3xl border border-line bg-paper p-4">
-                <div className="flex justify-between gap-2"><strong>{item.subject}</strong><StatusPill status={item.status} /></div>
+                <div className="flex flex-wrap items-start justify-between gap-2"><strong className="min-w-0 break-words">{item.subject}</strong><StatusPill status={item.status} /></div>
                 <p className="mt-1 text-sm text-moss">{item.description}</p>
                 {item.admin_note ? <p className="mt-2 text-sm">Admin: {item.admin_note}</p> : null}
               </article>

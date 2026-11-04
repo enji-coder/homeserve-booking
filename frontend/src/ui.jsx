@@ -29,8 +29,8 @@ export const field = "w-full rounded-2xl border border-line bg-white px-3.5 py-2
 
 export function Logo() {
   return (
-    <Link to="/" className="flex items-center gap-2 font-display text-2xl tracking-tight">
-      <span className="grid h-9 w-9 place-items-center rounded-xl bg-forest text-cream">
+    <Link to="/" className="flex min-w-0 items-center gap-2 font-display text-xl tracking-tight sm:text-2xl">
+      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-forest text-cream">
         <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor"><path d="M4 11.5 12 4l8 7.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1v-8.5z" /></svg>
       </span>
       HomeServe
@@ -40,27 +40,42 @@ export function Logo() {
 
 export function TopNav() {
   const { user } = useAuth();
+  const [open, setOpen] = useState(false);
+  const close = () => setOpen(false);
+  const links = (
+    <>
+      <a href="/#services" onClick={close}>Services</a>
+      <a href="/#how" onClick={close}>How it works</a>
+      <Link to="/services" onClick={close}>Book</Link>
+      <a href="/docs" onClick={close}>Swagger</a>
+    </>
+  );
+  const actions = user ? (
+    <Link to="/app" className={btn} onClick={close}>Open workspace</Link>
+  ) : (
+    <>
+      <Link to="/login" className={btnGhost} onClick={close}>Log in</Link>
+      <Link to="/register" className={btnClay} onClick={close}>Get started</Link>
+    </>
+  );
   return (
     <header className="sticky top-0 z-30 border-b border-line/80 bg-cream/85 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-3">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-5">
         <Logo />
-        <nav className="hidden items-center gap-6 text-sm font-medium text-moss md:flex">
-          <a href="/#services">Services</a>
-          <a href="/#how">How it works</a>
-          <Link to="/services">Book</Link>
-          <a href="/docs">Swagger</a>
-        </nav>
-        <div className="flex items-center gap-2">
-          {user ? (
-            <Link to="/app" className={btn}>Open workspace</Link>
-          ) : (
-            <>
-              <Link to="/login" className={btnGhost}>Log in</Link>
-              <Link to="/register" className={btnClay}>Get started</Link>
-            </>
-          )}
+        <nav className="hidden items-center gap-6 text-sm font-medium text-moss lg:flex">{links}</nav>
+        <div className="flex shrink-0 items-center gap-2">
+          <div className="hidden items-center gap-2 sm:flex">{actions}</div>
+          <button type="button" className={`${btnGhost} px-3 lg:hidden`} aria-expanded={open} aria-label="Open menu" onClick={() => setOpen((value) => !value)}>
+            {open ? "Close" : "Menu"}
+          </button>
         </div>
       </div>
+      {open ? (
+        <div className="border-t border-line px-4 py-3 lg:hidden">
+          <nav className="grid gap-3 text-sm font-medium text-moss">{links}</nav>
+          <div className="mt-3 grid gap-2 sm:hidden">{actions}</div>
+        </div>
+      ) : null}
     </header>
   );
 }
@@ -89,14 +104,14 @@ export function StatusPill({ status }) {
     accrued: "bg-leaf text-forest",
     refunded: "bg-stone-200 text-stone-700",
   }[status] || "bg-white text-ink";
-  return <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${tone}`}>{status}</span>;
+  return <span className={`inline-flex shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${tone}`}>{status}</span>;
 }
 
 export function Stat({ label, value, hint }) {
   return (
     <div className="rounded-3xl border border-line bg-paper p-4">
       <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-moss">{label}</p>
-      <p className="mt-2 font-display text-3xl">{value}</p>
+      <p className="mt-2 break-words font-display text-2xl sm:text-3xl">{value}</p>
       {hint ? <p className="mt-1 text-sm text-moss">{hint}</p> : null}
     </div>
   );
@@ -124,7 +139,7 @@ export function Bars({ data, y = "revenue" }) {
       {data.map((item) => (
         <div key={item.month} className="flex h-full flex-1 flex-col justify-end gap-2">
           <div className="rounded-t-xl bg-forest" style={{ height: `${Math.max((Number(item[y]) / max) * 100, 6)}%` }} />
-          <span className="text-center text-[10px] font-medium text-moss">{item.month}</span>
+          <span className="truncate text-center text-[10px] font-medium text-moss">{item.month}</span>
         </div>
       ))}
     </div>
@@ -177,8 +192,8 @@ export function Shell({ title, tabs, tab, setTab, children }) {
   }
 
   return (
-    <div className="min-h-screen md:grid md:grid-cols-[250px_1fr]">
-      <aside className="hidden bg-ink text-cream md:flex md:min-h-screen md:flex-col md:px-4 md:py-5">
+    <div className="min-h-screen lg:grid lg:grid-cols-[240px_1fr]">
+      <aside className="hidden bg-ink text-cream lg:flex lg:min-h-screen lg:flex-col lg:px-4 lg:py-5">
         <Logo />
         <p className="mt-6 px-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/40">{user?.role}</p>
         <nav className="mt-3 flex flex-1 flex-col gap-1">
@@ -191,25 +206,27 @@ export function Shell({ title, tabs, tab, setTab, children }) {
         <button onClick={logout} className="rounded-2xl px-3 py-2 text-left text-sm text-white/70 hover:bg-white/5">Log out</button>
       </aside>
       <div>
-        <header className="sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-line bg-cream/90 px-4 py-3 backdrop-blur md:px-8">
-          <div>
-            <p className="text-xs uppercase tracking-[0.16em] text-moss md:hidden">{user?.role}</p>
-            <h1 className="font-display text-2xl md:text-3xl">{title}</h1>
-          </div>
-          <div className="flex items-center gap-2">
-            <select className="rounded-full border border-line bg-white px-3 py-2 text-sm md:hidden" value={tab} onChange={(event) => setTab(event.target.value)}>
-              {tabs.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
-            </select>
-            <button onClick={openBell} className="relative grid h-10 w-10 place-items-center rounded-full border border-line bg-white">
-              <span className="text-lg">✉</span>
-              {unread > 0 ? <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-clay px-1 text-[10px] font-bold text-white">{unread}</span> : null}
-            </button>
-            <div className="hidden text-right sm:block">
-              <p className="text-sm font-semibold">{user?.full_name}</p>
-              <p className="text-xs text-moss">{user?.business_name || user?.email}</p>
+        <header className="sticky top-0 z-20 border-b border-line bg-cream/90 px-4 py-3 backdrop-blur lg:px-8">
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-xs uppercase tracking-[0.16em] text-moss lg:hidden">{user?.role}</p>
+              <h1 className="truncate font-display text-xl sm:text-2xl lg:text-3xl">{title}</h1>
             </div>
-            <button onClick={logout} className={`${btnGhost} md:hidden`}>Out</button>
+            <div className="flex shrink-0 items-center gap-2">
+              <button onClick={openBell} className="relative grid h-10 w-10 place-items-center rounded-full border border-line bg-white">
+                <span className="text-lg">✉</span>
+                {unread > 0 ? <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-clay px-1 text-[10px] font-bold text-white">{unread}</span> : null}
+              </button>
+              <div className="hidden max-w-[12rem] text-right sm:block">
+                <p className="truncate text-sm font-semibold">{user?.full_name}</p>
+                <p className="truncate text-xs text-moss">{user?.business_name || user?.email}</p>
+              </div>
+              <button onClick={logout} className={`${btnGhost} lg:hidden`}>Out</button>
+            </div>
           </div>
+          <select className="mt-3 w-full rounded-full border border-line bg-white px-3 py-2 text-sm lg:hidden" value={tab} onChange={(event) => setTab(event.target.value)}>
+            {tabs.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
+          </select>
         </header>
         {openNotes ? (
           <div className="border-b border-line bg-paper px-4 py-4 md:px-8">
@@ -223,7 +240,7 @@ export function Shell({ title, tabs, tab, setTab, children }) {
             </div>
           </div>
         ) : null}
-        <main className="px-4 py-6 md:px-8 md:py-8">{children}</main>
+        <main className="px-4 py-6 lg:px-8 lg:py-8">{children}</main>
       </div>
     </div>
   );

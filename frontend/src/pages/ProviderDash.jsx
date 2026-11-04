@@ -72,7 +72,7 @@ export default function ProviderDash() {
       ) : null}
       {tab === "overview" && dash ? (
         <div className="grid gap-4">
-          <div className="grid gap-3 sm:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
             <Stat label="Bookings" value={dash.total_bookings} />
             <Stat label="Today" value={dash.today} />
             <Stat label="Pending" value={dash.pending} />
@@ -86,8 +86,8 @@ export default function ProviderDash() {
         <div className="grid gap-3">
           {selected ? <BookingPanel booking={selected} role="provider" techs={techs} onChange={load} /> : null}
           {bookings.length === 0 ? <Empty title="No requests yet" body="Approved providers receive requests here." /> : bookings.map((booking) => (
-            <button key={booking.id} onClick={() => setParams({ tab: "bookings", id: booking.id })} className="flex items-center justify-between rounded-3xl border border-line bg-white px-4 py-3 text-left">
-              <span>{booking.booking_code} · {booking.service_name} · {prettyDate(booking.scheduled_date)} {booking.scheduled_time}</span>
+            <button key={booking.id} onClick={() => setParams({ tab: "bookings", id: booking.id })} className="flex flex-wrap items-center justify-between gap-2 rounded-3xl border border-line bg-white px-4 py-3 text-left">
+              <span className="min-w-0 flex-1 break-words">{booking.booking_code} · {booking.service_name} · {prettyDate(booking.scheduled_date)} {booking.scheduled_time}</span>
               <StatusPill status={booking.status} />
             </button>
           ))}
@@ -105,8 +105,8 @@ export default function ProviderDash() {
           </form>
           <div className="grid gap-2">
             {offers.map((item) => (
-              <article key={item.id} className="flex items-center justify-between rounded-3xl border border-line bg-paper px-4 py-3">
-                <span>{item.name}<br /><span className="text-sm text-moss">{inr(item.price)}</span></span>
+              <article key={item.id} className="flex flex-wrap items-center justify-between gap-2 rounded-3xl border border-line bg-paper px-4 py-3">
+                <span className="min-w-0 flex-1 break-words">{item.name}<br /><span className="text-sm text-moss">{inr(item.price)}</span></span>
                 <button className={btnGhost} onClick={async () => { await api.patch(`/api/provider/services/${item.id}`, { status: item.status === "active" ? "inactive" : "active" }); load(); }}>{item.status}</button>
               </article>
             ))}
@@ -116,14 +116,14 @@ export default function ProviderDash() {
       {tab === "schedule" ? (
         <div className="grid gap-6 md:grid-cols-2">
           <div>
-            <form className="grid grid-cols-3 gap-2" onSubmit={async (event) => { event.preventDefault(); await api.post("/api/provider/availability", { ...slot, day_of_week: Number(slot.day_of_week) }); load(); }}>
+            <form className="grid grid-cols-1 gap-2 sm:grid-cols-3" onSubmit={async (event) => { event.preventDefault(); await api.post("/api/provider/availability", { ...slot, day_of_week: Number(slot.day_of_week) }); load(); }}>
               <select className={field} value={slot.day_of_week} onChange={(event) => setSlot({ ...slot, day_of_week: event.target.value })}>{DAYS.map((day, index) => <option key={day} value={index}>{day}</option>)}</select>
               <input className={field} value={slot.start_time} onChange={(event) => setSlot({ ...slot, start_time: event.target.value })} />
               <input className={field} value={slot.end_time} onChange={(event) => setSlot({ ...slot, end_time: event.target.value })} />
-              <button className={`${btn} col-span-3`}>Add hours</button>
+              <button className={`${btn} sm:col-span-3`}>Add hours</button>
             </form>
             <ul className="mt-3 space-y-2 text-sm">
-              {hours.map((hour) => <li key={hour.id} className="flex justify-between rounded-2xl bg-paper px-3 py-2">{DAYS[hour.day_of_week]} {hour.start_time}–{hour.end_time} <button onClick={async () => { await api.del(`/api/provider/availability/${hour.id}`); load(); }}>Remove</button></li>)}
+              {hours.map((hour) => <li key={hour.id} className="flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-paper px-3 py-2"><span>{DAYS[hour.day_of_week]} {hour.start_time}–{hour.end_time}</span> <button onClick={async () => { await api.del(`/api/provider/availability/${hour.id}`); load(); }}>Remove</button></li>)}
             </ul>
           </div>
           <div>
@@ -133,7 +133,7 @@ export default function ProviderDash() {
               <button className={`${btn} col-span-2`}>Add area</button>
             </form>
             <ul className="mt-3 space-y-2 text-sm">
-              {areas.map((item) => <li key={item.id} className="flex justify-between rounded-2xl bg-paper px-3 py-2">{item.city} {item.pincode} <button onClick={async () => { await api.del(`/api/provider/areas/${item.id}`); load(); }}>Remove</button></li>)}
+              {areas.map((item) => <li key={item.id} className="flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-paper px-3 py-2"><span>{item.city} {item.pincode}</span> <button onClick={async () => { await api.del(`/api/provider/areas/${item.id}`); load(); }}>Remove</button></li>)}
             </ul>
           </div>
         </div>
@@ -157,7 +157,7 @@ export default function ProviderDash() {
         <div>
           <button className={`${btnGhost} mb-3`} onClick={async () => downloadBlob(await api.get("/api/provider/earnings.csv"), "earnings.csv")}>Export CSV</button>
           <div className="grid gap-2">
-            {earnings.map((item) => <article key={item.id} className="flex justify-between rounded-3xl border border-line bg-paper px-4 py-3 text-sm"><span>{item.booking_code} · gross {inr(item.gross)} · commission {inr(item.commission)}</span><StatusPill status={item.status} /></article>)}
+            {earnings.map((item) => <article key={item.id} className="flex flex-wrap items-center justify-between gap-2 rounded-3xl border border-line bg-paper px-4 py-3 text-sm"><span className="min-w-0 flex-1 break-words">{item.booking_code} · gross {inr(item.gross)} · commission {inr(item.commission)}</span><StatusPill status={item.status} /></article>)}
           </div>
         </div>
       ) : null}
@@ -168,7 +168,7 @@ export default function ProviderDash() {
               <p className="font-semibold">{review.customer_name} · {review.rating}/5</p>
               <p className="text-sm">{review.comment}</p>
               {review.provider_response ? <p className="mt-2 text-sm text-moss">Your reply: {review.provider_response}</p> : (
-                <div className="mt-2 flex gap-2">
+                <div className="mt-2 flex flex-col gap-2 sm:flex-row">
                   <input className={field} placeholder="Reply" value={reply[review.id] || ""} onChange={(event) => setReply({ ...reply, [review.id]: event.target.value })} />
                   <button className={btn} onClick={async () => { await api.post(`/api/reviews/${review.id}/respond`, { response: reply[review.id] || "Thank you." }); load(); }}>Reply</button>
                 </div>

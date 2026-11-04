@@ -13,13 +13,13 @@ const DEMOS = [
 
 function Frame({ title, lede, children }) {
   return (
-    <div className="mx-auto grid min-h-screen max-w-6xl items-center gap-10 px-5 py-10 md:grid-cols-2">
+    <div className="mx-auto grid min-h-screen max-w-6xl items-center gap-8 px-4 py-8 sm:px-5 md:grid-cols-2 md:gap-10 md:py-10">
       <div>
         <Logo />
-        <h1 className="mt-8 font-display text-5xl leading-tight">{title}</h1>
+        <h1 className="mt-6 font-display text-4xl leading-tight sm:mt-8 sm:text-5xl">{title}</h1>
         <p className="mt-4 max-w-md text-moss">{lede}</p>
       </div>
-      <div className="rounded-[32px] border border-line bg-paper p-6 shadow-card">{children}</div>
+      <div className="rounded-[28px] border border-line bg-paper p-4 shadow-card sm:rounded-[32px] sm:p-6">{children}</div>
     </div>
   );
 }
@@ -110,7 +110,7 @@ export function Register() {
   return (
     <Frame title="Create your login." lede="Customers book. Providers list services after admin verification. Technicians join an approved crew.">
       <form className="grid gap-3" onSubmit={submit}>
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-1 gap-2 min-[420px]:grid-cols-3">
           {["customer", "provider", "technician"].map((role) => (
             <button type="button" key={role} className={form.role === role ? btn : btnGhost} onClick={() => { set("role", role); if (role === "technician" && providers.length === 0) loadProviders(); }}>{role}</button>
           ))}
