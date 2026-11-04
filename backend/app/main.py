@@ -14,7 +14,7 @@ from pathlib import Path
 import httpx
 from fastapi import Depends, FastAPI, File, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, JSONResponse, Response
+from fastapi.responses import FileResponse, JSONResponse, RedirectResponse, Response
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
@@ -445,10 +445,46 @@ async def lifespan(app: FastAPI):
 init_db()
 
 
+OPENAPI_TAGS = [
+    {"name": "Meta", "description": "Service health. `database` is `postgresql` on the live Render API."},
+    {"name": "Auth", "description": "Register, login, logout, password reset, and profile. Use Authorize with the Bearer token from login."},
+    {"name": "Catalog", "description": "Categories, services, providers, offers, and public stats."},
+    {"name": "Booking", "description": "Slots, create booking, list, cancel, reschedule, accept, reject, assign, arrive, complete, and job images."},
+    {"name": "Customer", "description": "Customer dashboard, addresses, and favourite providers."},
+    {"name": "Provider", "description": "Provider dashboard, services, availability, service areas, technicians, earnings, reviews, profile, and plans."},
+    {"name": "Technician", "description": "Assigned jobs for the logged-in technician."},
+    {"name": "Payments", "description": "Coupon preview, Razorpay or test checkout, verify, payment list, and invoice."},
+    {"name": "Reviews", "description": "Customer reviews, provider replies, and admin visibility."},
+    {"name": "Complaints", "description": "Raise a complaint and track or resolve it."},
+    {"name": "Notifications", "description": "In-app notifications and admin announcements."},
+    {"name": "Files", "description": "Upload a JPG, PNG, WEBP, or PDF up to 5 MB."},
+    {"name": "Admin", "description": "Users, provider verification, listings, coupons, plans, stats, and CSV reports."},
+]
+
 app = FastAPI(
     title="HomeServe API",
     version="1.0.0",
-    description="Booking API for HomeServe Technologies.",
+    description=(
+        "HomeServe Technologies booking API.\n\n"
+        "This page is the live Swagger UI. ReDoc is at `/redoc`. The spec file is `/openapi.json`. "
+        "A short link is `/swagger`.\n\n"
+        "1. Call **POST /api/auth/login**.\n"
+        "2. Copy `access_token`.\n"
+        "3. Click **Authorize** and paste the token.\n"
+        "4. Try any endpoint. The request goes to this same server.\n\n"
+        "Demo password for every seeded account: `Demo@1234`.\n\n"
+        "| Role | Email |\n"
+        "| --- | --- |\n"
+        "| Customer | priya@homeserve.test |\n"
+        "| Provider | kiran@homeserve.test |\n"
+        "| Technician | amit@homeserve.test |\n"
+        "| Admin | admin@homeserve.test |"
+    ),
+    openapi_tags=OPENAPI_TAGS,
+    docs_url="/docs",
+    redoc_url="/redoc",
+    openapi_url="/openapi.json",
+    swagger_ui_parameters={"persistAuthorization": True, "displayRequestDuration": True},
     lifespan=lifespan,
 )
 
@@ -2139,12 +2175,18 @@ def root():
     dist = frontend_dist()
     if dist:
         return FileResponse(dist / "index.html")
-    return {"name": "HomeServe API", "docs": "/docs", "health": "/api/health"}
+    return {"name": "HomeServe API", "swagger": "/docs", "redoc": "/redoc", "openapi": "/openapi.json", "health": "/api/health"}
+
+
+@app.get("/swagger", include_in_schema=False)
+def swagger_alias():
+    return RedirectResponse("/docs")
 
 
 @app.get("/{full_path:path}", include_in_schema=False)
 def spa(full_path: str):
-    if full_path.startswith("api") or full_path.startswith("uploads"):
+    head = full_path.split("/", 1)[0]
+    if head in {"api", "uploads", "docs", "redoc", "openapi.json", "swagger"}:
         raise HTTPException(404, "Not found.")
     dist = frontend_dist()
     if not dist:

@@ -48,6 +48,7 @@ export function TopNav() {
           <a href="/#services">Services</a>
           <a href="/#how">How it works</a>
           <Link to="/services">Book</Link>
+          <a href="/docs">Swagger</a>
         </nav>
         <div className="flex items-center gap-2">
           {user ? (

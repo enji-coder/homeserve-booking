@@ -8,6 +8,10 @@ export default defineConfig({
     proxy: {
       "/api": "http://127.0.0.1:8000",
       "/uploads": "http://127.0.0.1:8000",
+      "/docs": "http://127.0.0.1:8000",
+      "/redoc": "http://127.0.0.1:8000",
+      "/swagger": "http://127.0.0.1:8000",
+      "/openapi.json": "http://127.0.0.1:8000",
     },
   },
 });

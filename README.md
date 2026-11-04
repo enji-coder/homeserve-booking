@@ -29,7 +29,7 @@ npm install
 npm run dev
 ```
 
-Open http://127.0.0.1:5173. API docs: http://127.0.0.1:8000/docs
+Open http://127.0.0.1:5173. Swagger UI: http://127.0.0.1:8000/docs (same page at `/swagger`). ReDoc: http://127.0.0.1:8000/redoc. Spec: http://127.0.0.1:8000/openapi.json. On the live site those paths are `/docs`, `/swagger`, `/redoc`, and `/openapi.json`.
 
 Locally the app uses SQLite. The live Render service uses a free Render Postgres database. Tables are created on startup and the demo accounts are inserted once into that database, so bookings you create there stay saved. MySQL is supported with `DATABASE_URL=mysql+pymysql://user:pass@host:3306/homeserve` and `docs/schema.sql`.
 

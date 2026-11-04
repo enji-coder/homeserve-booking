@@ -16,6 +16,36 @@
   force = true
 
 [[redirects]]
+  from = "/docs"
+  to = "https://homeserve.onrender.com/docs"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/docs/*"
+  to = "https://homeserve.onrender.com/docs/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/redoc"
+  to = "https://homeserve.onrender.com/redoc"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/swagger"
+  to = "https://homeserve.onrender.com/docs"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/openapi.json"
+  to = "https://homeserve.onrender.com/openapi.json"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
