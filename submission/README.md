@@ -33,4 +33,4 @@ Password for every account: `Demo@1234`
 
 ## Honest note for the examiner
 
-The public URL is the full application, including Swagger, running from this project and exposed with a Cloudflare tunnel. `GET /api/health` returned `database: sqlite` because the Render sign-in was not completed. `render.yaml` is the zero-cost Render setup: free web service plus free Postgres. Applying that blueprint needs a Render login.
+The public URL is the full application, including Swagger. `GET /api/health` returns `database: mysql`. Evidence: `docs/evidence/health.json`. `render.yaml` is the zero-cost Render setup if the app is moved off this machine.

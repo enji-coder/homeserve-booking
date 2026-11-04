@@ -78,6 +78,20 @@ What was produced: this file, `submission/README.md`, `docs/PROJECT.md`, `docs/A
 | Swagger is served by the API process | One deploy covers the site and the API document |
 | Playwright spec is in the repo but was not run | The browser package was not installed. Pytest covers the booking path |
 
+### 5. Judge the repo against the capstone brief and close the gaps
+
+The request was to inspect the GitHub repository and the live URL the way a judge would, against the capstone document, and to fix anything that would lose marks.
+
+What was produced:
+
+- Technician must accept a job before marking arrival.
+- A paid booking sends the review-request notification.
+- Admin overview shows cancelled bookings and the customer-growth chart.
+- The service catalog paginates.
+- Update routes accept PUT as well as PATCH.
+- `docs/PLANNING.md`, `docs/REQUIREMENTS_TRACE.md`, `docs/BUG_REPORT.md`, and `docs/SECURITY_REPORT.md`.
+- The public health check returns `database: mysql`.
+
 ## Git history for this build
 
 | Commit | What it contains |

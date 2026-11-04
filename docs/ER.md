@@ -1,6 +1,6 @@
 # Database schema and ER diagram
 
-The written MySQL 8 script is `docs/schema.sql` (23 tables). SQLAlchemy creates the same tables on SQLite, MySQL, or Postgres from `backend/app/models.py`. The current public app uses SQLite. `render.yaml` is set up to use a free Render Postgres database when that blueprint is applied.
+The written MySQL 8 script is `docs/schema.sql` (23 tables). SQLAlchemy creates the same tables on SQLite, MySQL, or Postgres from `backend/app/models.py`. The current public app uses MySQL 8. `render.yaml` is set up to use a free Render Postgres database when that blueprint is applied.
 
 ## Entity relationship diagram
 

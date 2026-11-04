@@ -324,6 +324,14 @@ def booking_json(db, row: Booking) -> dict:
         tech_user = db.get(User, tech.user_id) if tech else None
     images = db.query(BookingImage).filter_by(booking_id=row.id).all()
     review = db.query(Review).filter_by(booking_id=row.id).first()
+    assignment = None
+    if row.technician_id:
+        assignment = (
+            db.query(BookingAssignment)
+            .filter_by(booking_id=row.id, technician_id=row.technician_id)
+            .order_by(BookingAssignment.id.desc())
+            .first()
+        )
     paid = paid_sum(db, row.id)
     return {
         "id": row.id,
@@ -354,6 +362,7 @@ def booking_json(db, row: Booking) -> dict:
         "technician_id": row.technician_id,
         "technician_name": tech_user.full_name if tech_user else "",
         "technician_phone": tech_user.phone if tech_user else "",
+        "job_accepted": bool(assignment and assignment.status in ("accepted", "arrived", "completed")),
         "images": [{"id": image.id, "url": image.url, "kind": image.kind} for image in images],
         "review": review_json(db, review) if review else None,
         "arrived_at": iso(row.arrived_at),
@@ -905,6 +914,7 @@ def change_password(payload: PasswordIn, user: User = Depends(current_user), db=
     return {"message": "Password changed."}
 
 
+@app.put("/api/profile", tags=["Auth"])
 @app.patch("/api/profile", tags=["Auth"])
 def update_profile(payload: ProfileIn, user: User = Depends(current_user), db=Depends(get_db)):
     if payload.full_name is not None:
@@ -935,6 +945,7 @@ def create_category(payload: CategoryIn, _: User = Depends(require("admin")), db
     return category_json(row)
 
 
+@app.put("/api/categories/{category_id}", tags=["Admin"])
 @app.patch("/api/categories/{category_id}", tags=["Admin"])
 def patch_category(category_id: int, payload: CategoryIn, _: User = Depends(require("admin")), db=Depends(get_db)):
     row = db.get(ServiceCategory, category_id)
@@ -1000,6 +1011,7 @@ def create_service(payload: ServiceIn, _: User = Depends(require("admin")), db=D
     return service_summary(db, row)
 
 
+@app.put("/api/services/{service_id}", tags=["Admin"])
 @app.patch("/api/services/{service_id}", tags=["Admin"])
 def patch_service(service_id: int, payload: ServicePatch, _: User = Depends(require("admin")), db=Depends(get_db)):
     row = db.get(Service, service_id)
@@ -1132,6 +1144,7 @@ def create_address(payload: AddressIn, user: User = Depends(require("customer"))
     return {"id": row.id}
 
 
+@app.put("/api/addresses/{address_id}", tags=["Customer"])
 @app.patch("/api/addresses/{address_id}", tags=["Customer"])
 def patch_address(address_id: int, payload: AddressIn, user: User = Depends(require("customer")), db=Depends(get_db)):
     customer = customer_of(db, user)
@@ -1397,13 +1410,40 @@ def assign_tech(booking_id: int, payload: AssignIn, user: User = Depends(require
     return booking_json(db, booking)
 
 
+@app.post("/api/bookings/{booking_id}/accept-job", tags=["Technician"])
+def accept_job(booking_id: int, user: User = Depends(require("technician")), db=Depends(get_db)):
+    booking = load_booking(db, user, booking_id)
+    tech = technician_of(db, user)
+    if booking.technician_id != tech.id or booking.status != "Provider Assigned":
+        raise HTTPException(400, "This job is not waiting for you to accept it.")
+    assignment = (
+        db.query(BookingAssignment)
+        .filter_by(booking_id=booking.id, technician_id=tech.id)
+        .order_by(BookingAssignment.id.desc())
+        .first()
+    )
+    if not assignment:
+        raise HTTPException(400, "This job is not waiting for you to accept it.")
+    if assignment.status == "assigned":
+        assignment.status = "accepted"
+        customer = db.get(Customer, booking.customer_id)
+        notify(db, customer.user_id, "Technician accepted", f"{user.full_name} accepted {booking.booking_code}.", "booking")
+        db.commit()
+    return booking_json(db, booking)
+
+
 @app.post("/api/bookings/{booking_id}/arrive", tags=["Booking"])
 def arrive(booking_id: int, user: User = Depends(require("technician", "provider", "admin")), db=Depends(get_db)):
     booking = load_booking(db, user, booking_id)
     if booking.status != "Provider Assigned":
         raise HTTPException(400, "Arrival can be marked after a technician is assigned.")
-    if user.role == "technician" and booking.technician_id != technician_of(db, user).id:
-        raise HTTPException(403, "This job is not assigned to you.")
+    if user.role == "technician":
+        tech = technician_of(db, user)
+        if booking.technician_id != tech.id:
+            raise HTTPException(403, "This job is not assigned to you.")
+        accepted = db.query(BookingAssignment).filter_by(booking_id=booking.id, technician_id=tech.id, status="accepted").first()
+        if not accepted:
+            raise HTTPException(400, "Accept the job before marking arrival.")
     booking.status = "In Progress"
     booking.arrived_at = datetime.utcnow()
     assignment = db.query(BookingAssignment).filter_by(booking_id=booking.id, technician_id=booking.technician_id).order_by(BookingAssignment.id.desc()).first()
@@ -1519,6 +1559,8 @@ def verify_payment(payload: VerifyIn, user: User = Depends(require("customer", "
         notify(db, customer.user_id, "Payment received", f"{booking.booking_code}: ₹{payment.amount:.0f} received. Balance ₹{max(booking.total - paid, 0):.0f}.", "payment")
         if provider:
             notify(db, provider.user_id, "Payment update", f"{booking.booking_code} received ₹{payment.amount:.0f}.", "payment")
+        if booking.payment_status == "Paid":
+            notify(db, customer.user_id, "Please review your visit", f"{booking.booking_code} is paid. A short review helps the next customer.", "review")
     else:
         payment.status = "Failed"
         booking.payment_status = booking.payment_status if booking.payment_status == "Partial" else "Failed"
@@ -1647,6 +1689,7 @@ def list_complaints(user: User = Depends(current_user), db=Depends(get_db)):
     return result
 
 
+@app.put("/api/complaints/{complaint_id}", tags=["Complaints"])
 @app.patch("/api/complaints/{complaint_id}", tags=["Complaints"])
 def update_complaint(complaint_id: int, payload: ComplaintUpdate, _: User = Depends(require("admin")), db=Depends(get_db)):
     if payload.status not in ("Open", "In Review", "Resolved"):
@@ -1724,6 +1767,7 @@ def add_offer(payload: OfferIn, user: User = Depends(require("provider")), db=De
     return {"id": row.id}
 
 
+@app.put("/api/provider/services/{offer_id}", tags=["Provider"])
 @app.patch("/api/provider/services/{offer_id}", tags=["Provider"])
 def patch_offer(offer_id: int, payload: OfferPatch, user: User = Depends(require("provider")), db=Depends(get_db)):
     provider = provider_of(db, user)
@@ -1846,6 +1890,7 @@ def my_reviews(user: User = Depends(require("provider")), db=Depends(get_db)):
     return [review_json(db, row) for row in rows]
 
 
+@app.put("/api/provider/profile", tags=["Provider"])
 @app.patch("/api/provider/profile", tags=["Provider"])
 def provider_profile(payload: ProviderProfileIn, user: User = Depends(require("provider")), db=Depends(get_db)):
     provider = provider_of(db, user)
@@ -1949,6 +1994,7 @@ def admin_users(role: str = "", q: str = "", _: User = Depends(require("admin"))
     return [public_user(db, row) for row in rows]
 
 
+@app.put("/api/admin/users/{user_id}", tags=["Admin"])
 @app.patch("/api/admin/users/{user_id}", tags=["Admin"])
 def admin_user_status(user_id: int, payload: StatusIn, actor: User = Depends(require("admin")), db=Depends(get_db)):
     if payload.status not in ("active", "suspended"):
@@ -1990,6 +2036,7 @@ def admin_listings(_: User = Depends(require("admin")), db=Depends(get_db)):
     return result
 
 
+@app.put("/api/admin/listings/{offer_id}", tags=["Admin"])
 @app.patch("/api/admin/listings/{offer_id}", tags=["Admin"])
 def admin_listing_status(offer_id: int, payload: StatusIn, _: User = Depends(require("admin")), db=Depends(get_db)):
     row = db.get(ProviderService, offer_id)
@@ -2021,6 +2068,7 @@ def create_coupon(payload: CouponIn, _: User = Depends(require("admin")), db=Dep
     return {"id": row.id}
 
 
+@app.put("/api/coupons/{coupon_id}", tags=["Admin"])
 @app.patch("/api/coupons/{coupon_id}", tags=["Admin"])
 def patch_coupon(coupon_id: int, payload: CouponIn, _: User = Depends(require("admin")), db=Depends(get_db)):
     row = db.get(Coupon, coupon_id)
@@ -2051,6 +2099,7 @@ def create_plan(payload: PlanIn, _: User = Depends(require("admin")), db=Depends
     return {"id": row.id}
 
 
+@app.put("/api/plans/{plan_id}", tags=["Admin"])
 @app.patch("/api/plans/{plan_id}", tags=["Admin"])
 def patch_plan(plan_id: int, payload: PlanIn, _: User = Depends(require("admin")), db=Depends(get_db)):
     row = db.get(SubscriptionPlan, plan_id)
@@ -2076,6 +2125,7 @@ def announce(payload: AnnounceIn, _: User = Depends(require("admin")), db=Depend
     return {"sent": len(users)}
 
 
+@app.put("/api/admin/reviews/{review_id}", tags=["Reviews"])
 @app.patch("/api/admin/reviews/{review_id}", tags=["Reviews"])
 def hide_review(review_id: int, payload: ReviewHide, _: User = Depends(require("admin")), db=Depends(get_db)):
     row = db.get(Review, review_id)
