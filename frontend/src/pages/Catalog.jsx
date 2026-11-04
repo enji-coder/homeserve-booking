@@ -38,8 +38,8 @@ export function Services() {
   return (
     <div>
       <TopNav />
-      <div className="mx-auto max-w-6xl px-5 py-10">
-        <h1 className="font-display text-5xl">Services</h1>
+      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-5 sm:py-10">
+        <h1 className="font-display text-4xl sm:text-5xl">Services</h1>
         <p className="mt-2 text-moss">{data.total} live listings from verified crews.</p>
         <div className="mt-6 grid gap-2 md:grid-cols-3">
           <input className={field} placeholder="Search" value={q} onChange={(event) => update("q", event.target.value)} />
@@ -55,7 +55,7 @@ export function Services() {
               <span className="grid h-11 w-11 place-items-center rounded-2xl bg-leaf text-forest"><Icon name={service.icon} /></span>
               <h2 className="mt-4 font-display text-3xl">{service.name}</h2>
               <p className="mt-2 line-clamp-2 text-sm text-moss">{service.description}</p>
-              <div className="mt-4 flex items-end justify-between">
+              <div className="mt-4 flex flex-wrap items-end justify-between gap-2">
                 <p className="font-display text-2xl">{inr(service.min_price)}</p>
                 <p className="text-sm text-moss">{service.provider_count} crews · {service.duration_mins} min</p>
               </div>
@@ -87,12 +87,12 @@ export function ServiceDetail() {
   return (
     <div>
       <TopNav />
-      <div className="mx-auto max-w-6xl px-5 py-10">
+      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-5 sm:py-10">
         <ErrorNote error={error} />
         {service ? (
           <>
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-clay">{service.category}</p>
-            <h1 className="mt-2 font-display text-5xl">{service.name}</h1>
+            <h1 className="mt-2 break-words font-display text-4xl sm:text-5xl">{service.name}</h1>
             <p className="mt-3 max-w-2xl text-moss">{service.description}</p>
             <div className="mt-8 grid gap-4">
               {service.providers?.map((provider) => (
@@ -102,7 +102,7 @@ export function ServiceDetail() {
                     <p className="text-sm text-moss">{provider.rating_avg || "New"} ★ · {provider.rating_count} reviews · {provider.experience_years} years · {provider.areas.map((area) => area.pincode).join(", ")}</p>
                     <p className="mt-2 text-sm">{provider.bio}</p>
                   </div>
-                  <div className="text-right">
+                  <div className="sm:text-right">
                     <p className="font-display text-3xl">{inr(provider.price)}</p>
                     <Link to={`/book/${provider.offer_id}`} className={`${btnClay} mt-3`}>Book this crew</Link>
                   </div>
@@ -140,24 +140,24 @@ export function ProviderPage() {
   return (
     <div>
       <TopNav />
-      <div className="mx-auto max-w-6xl px-5 py-10">
+      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-5 sm:py-10">
         <ErrorNote error={error} />
         {provider ? (
           <div className="grid gap-6 md:grid-cols-[1.2fr_0.8fr]">
             <div>
-              <h1 className="font-display text-5xl">{provider.business_name}</h1>
+              <h1 className="break-words font-display text-4xl sm:text-5xl">{provider.business_name}</h1>
               <p className="mt-2 text-moss">{provider.contact_name} · {provider.experience_years} years · {provider.rating_avg} ★ from {provider.rating_count} reviews</p>
               <p className="mt-4 max-w-xl">{provider.bio}</p>
               {user?.role === "customer" ? <button className={`${btnGhost} mt-4`} onClick={toggle}>{fav ? "Saved" : "Save provider"}</button> : null}
               <h2 className="mt-8 font-display text-3xl">Services</h2>
               <div className="mt-3 grid gap-3">
                 {provider.offers.map((offer) => (
-                  <div key={offer.offer_id} className="flex items-center justify-between rounded-3xl border border-line bg-paper px-4 py-3">
+                  <div key={offer.offer_id} className="flex flex-wrap items-center justify-between gap-3 rounded-3xl border border-line bg-paper px-4 py-3">
                     <div>
                       <p className="font-semibold">{offer.name}</p>
                       <p className="text-sm text-moss">{offer.duration_mins} min</p>
                     </div>
-                    <div className="text-right">
+                    <div className="sm:text-right">
                       <p className="font-display text-2xl">{inr(offer.price)}</p>
                       <Link to={`/book/${offer.offer_id}`} className="text-sm font-semibold text-forest">Book</Link>
                     </div>
@@ -269,9 +269,9 @@ export function Book() {
   return (
     <div>
       <TopNav />
-      <div className="mx-auto grid max-w-6xl gap-6 px-5 py-10 md:grid-cols-[1.2fr_0.8fr]">
+      <div className="mx-auto grid max-w-6xl gap-6 px-4 py-8 sm:px-5 sm:py-10 md:grid-cols-[1.2fr_0.8fr]">
         <form className="grid gap-3 rounded-[28px] border border-line bg-paper p-5" onSubmit={submit}>
-          <h1 className="font-display text-4xl">Book {offer?.service.name}</h1>
+          <h1 className="break-words font-display text-3xl sm:text-4xl">Book {offer?.service.name}</h1>
           <p className="text-sm text-moss">{offer?.provider.business_name} · {inr(offer?.price)} before GST</p>
           <input className={field} type="date" min={new Date().toISOString().slice(0, 10)} value={date} onChange={(event) => { setDate(event.target.value); setTime(""); }} required />
           <div className="flex flex-wrap gap-2">
@@ -295,7 +295,7 @@ export function Book() {
           ) : null}
           <textarea className={field} rows="3" placeholder="What should the technician know?" value={note} onChange={(event) => setNote(event.target.value)} />
           <label className="text-sm text-moss">Problem photo <input type="file" accept="image/*" onChange={(event) => setFile(event.target.files?.[0] || null)} /></label>
-          <div className="flex gap-2">
+          <div className="flex flex-col gap-2 sm:flex-row">
             <input className={field} placeholder="Coupon, try WELCOME10" value={coupon} onChange={(event) => setCoupon(event.target.value.toUpperCase())} />
             <button type="button" className={btnGhost} onClick={applyCoupon}>Apply</button>
           </div>
@@ -304,7 +304,7 @@ export function Book() {
         </form>
         <aside className="h-fit rounded-[28px] bg-ink p-5 text-cream">
           <p className="text-xs uppercase tracking-[0.16em] text-white/50">Payable</p>
-          <p className="mt-3 font-display text-5xl">{inr(price)}</p>
+          <p className="mt-3 font-display text-4xl sm:text-5xl">{inr(price)}</p>
           <p className="mt-2 text-sm text-white/70">{preview ? `Discount ${inr(preview.discount)} · GST ${inr(preview.gst)}` : "18% GST is added on the service amount."}</p>
           <p className="mt-6 text-sm text-white/70">{date && time ? `${prettyDate(date)} at ${time}` : "Pick a free slot. Taken hours stay locked."}</p>
           <StatusPill status="Pending" />

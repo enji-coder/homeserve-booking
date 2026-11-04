@@ -37,14 +37,14 @@ export default function TechDash() {
   return (
     <Shell title="Your jobs" tabs={TABS} tab={tab} setTab={(next) => setParams({ tab: next })}>
       <ErrorNote error={error} />
-      {stats ? <div className="mb-4 grid gap-3 sm:grid-cols-3"><Stat label="Active" value={stats.active} /><Stat label="Completed" value={stats.completed} /><Stat label="All assigned" value={stats.total} hint={stats.skills} /></div> : null}
+      {stats ? <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-3"><Stat label="Active" value={stats.active} /><Stat label="Completed" value={stats.completed} /><Stat label="All assigned" value={stats.total} hint={stats.skills} /></div> : null}
       {tab !== "profile" ? (
         <div className="grid gap-3">
           {selected ? <BookingPanel booking={selected} role="technician" onChange={load} /> : null}
           {visible.map((job) => (
             <button key={job.id} onClick={() => setParams({ tab, id: job.id })} className="rounded-3xl border border-line bg-paper px-4 py-3 text-left">
-              <div className="flex items-center justify-between"><strong>{job.service_name}</strong><StatusPill status={job.status} /></div>
-              <p className="text-sm text-moss">{prettyDate(job.scheduled_date)} {job.scheduled_time} · {job.address}</p>
+              <div className="flex flex-wrap items-center justify-between gap-2"><strong className="min-w-0 break-words">{job.service_name}</strong><StatusPill status={job.status} /></div>
+              <p className="break-words text-sm text-moss">{prettyDate(job.scheduled_date)} {job.scheduled_time} · {job.address}</p>
               <p className="text-sm">{job.customer_name} · {job.customer_phone}</p>
             </button>
           ))}
