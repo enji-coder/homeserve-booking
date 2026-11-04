@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>HomeServe — Final presentation</title>
+<style>
+  :root {
+    --ink: #1c1915;
+    --forest: #1f4d3a;
+    --cream: #f6f1e7;
+    --clay: #b85c38;
+    --line: #e4dccf;
+    --moss: #5c675e;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: #111; color: var(--ink); font-family: "Segoe UI", Georgia, sans-serif; }
+  .deck { height: 100%; }
+  .slide {
+    display: none;
+    height: 100%;
+    padding: 56px 72px 84px;
+    background: var(--cream);
+    overflow: auto;
+  }
+  .slide.active { display: flex; flex-direction: column; }
+  h1 { font-family: Georgia, serif; font-weight: 500; font-size: 64px; line-height: 1.05; margin: 0 0 16px; letter-spacing: -1px; }
+  h2 { font-family: Georgia, serif; font-weight: 500; font-size: 40px; margin: 0 0 22px; }
+  p, li { font-size: 22px; line-height: 1.45; }
+  .kicker { color: var(--clay); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; font-size: 14px; margin-bottom: 18px; }
+  .muted { color: var(--moss); }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .card { background: white; border: 1px solid var(--line); border-radius: 18px; padding: 18px 20px; }
+  .card h3 { margin: 0 0 6px; font-size: 20px; }
+  .card p, .card li { font-size: 17px; margin: 0; }
+  table { width: 100%; border-collapse: collapse; background: white; border-radius: 16px; overflow: hidden; }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); font-size: 18px; }
+  th { background: var(--forest); color: white; font-weight: 600; }
+  a { color: var(--forest); }
+  .bar {
+    position: fixed; left: 0; right: 0; bottom: 0; height: 52px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 24px; background: var(--ink); color: var(--cream); font-size: 14px;
+  }
+  button {
+    background: transparent; color: var(--cream); border: 1px solid #4a453d;
+    border-radius: 999px; padding: 6px 14px; cursor: pointer; font: inherit;
+  }
+  .title-slide { background: var(--forest); color: var(--cream); }
+  .title-slide .kicker { color: #f0c9b4; }
+  .title-slide a { color: #f6f1e7; }
+  ul { margin: 8px 0 0; padding-left: 22px; }
+  li { margin: 6px 0; }
+  @media print {
+    .bar { display: none; }
+    .slide { display: flex !important; page-break-after: always; height: auto; min-height: 100vh; }
+    body { background: white; }
+  }
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+<section class="slide title-slide active">
+  <div class="kicker">Capstone submission · 4 November 2026</div>
+  <h1>HomeServe</h1>
+  <p style="font-size:28px; max-width:760px;">Home services, booked properly. A customer picks a verified crew in Ahmedabad, a provider assigns a technician, and the job is paid and reviewed.</p>
+  <p class="muted" style="color:#d9e4dc;">Four roles · ten modules · Swagger · live URL</p>
+</section>
+
+<section class="slide">
+  <div class="kicker">Problem</div>
+  <h2>A visit should have one record.</h2>
+  <div class="grid">
+    <div class="card"><h3>For the customer</h3><p>Search, a free hour, a price with GST, and a person who actually arrives.</p></div>
+    <div class="card"><h3>For the crew</h3><p>Accept the job, send the right technician, and see what they earned after commission.</p></div>
+    <div class="card"><h3>For the platform</h3><p>Verify the provider, stop a double booking, and export the numbers.</p></div>
+    <div class="card"><h3>What we built</h3><p>One app for all four roles, with the API documented in Swagger.</p></div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="kicker">Roles</div>
+  <h2>Who signs in</h2>
+  <table>
+    <tr><th>Role</th><th>Email</th><th>They use it to</th></tr>
+    <tr><td>Customer</td><td>priya@homeserve.test</td><td>Book, pay, review</td></tr>
+    <tr><td>Provider</td><td>kiran@homeserve.test</td><td>Accept and assign</td></tr>
+    <tr><td>Technician</td><td>amit@homeserve.test</td><td>Arrive and complete</td></tr>
+    <tr><td>Admin</td><td>admin@homeserve.test</td><td>Verify, report, export</td></tr>
+  </table>
+  <p class="muted">Password for every account: Demo@1234</p>
+</section>
+
+<section class="slide">
+  <div class="kicker">Modules</div>
+  <h2>What the document asked for</h2>
+  <div class="grid">
+    <div class="card"><h3>1–2</h3><p>Auth and profile. Catalog and search.</p></div>
+    <div class="card"><h3>3–4</h3><p>Provider verification. Hours, areas, and slots.</p></div>
+    <div class="card"><h3>5–6</h3><p>Booking lifecycle. Technician assignment.</p></div>
+    <div class="card"><h3>7–8</h3><p>Coupons, GST, payment, invoice. Reviews.</p></div>
+    <div class="card"><h3>9–10</h3><p>Complaints and notifications. Admin stats and CSV.</p></div>
+    <div class="card"><h3>Status path</h3><p>Pending → Confirmed → Provider Assigned → In Progress → Completed.</p></div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="kicker">Architecture</div>
+  <h2>One service, one document.</h2>
+  <div class="grid">
+    <div class="card"><h3>Frontend</h3><p>React, Vite, Tailwind. Role workspace at <code>/app</code>.</p></div>
+    <div class="card"><h3>API</h3><p>FastAPI. 75 operations. Swagger at <code>/docs</code>.</p></div>
+    <div class="card"><h3>Data</h3><p>SQLAlchemy. 23 tables. SQLite today. Postgres blueprint ready. MySQL script included.</p></div>
+    <div class="card"><h3>Auth</h3><p>bcrypt passwords. JWT for 12 hours. Role checks on every protected route.</p></div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="kicker">Database</div>
+  <h2>Schema and ER</h2>
+  <ul>
+    <li>Written script: <code>docs/schema.sql</code></li>
+    <li>Diagram: <code>docs/ER.md</code></li>
+    <li>A slot is unique. Booking it twice returns HTTP 409.</li>
+    <li>GST is 18%. Commission follows the plan: 20%, 15%, or 10%.</li>
+    <li>Coupons: WELCOME10, FLAT150, MONSOON20.</li>
+  </ul>
+</section>
+
+<section class="slide">
+  <div class="kicker">API</div>
+  <h2>Swagger is deployed with the app.</h2>
+  <p><a href="https://juvenile-pleased-capability-scales.trycloudflare.com/docs">juvenile-pleased-capability-scales.trycloudflare.com/docs</a></p>
+  <ul>
+    <li>Login, copy the <code>token</code> field, click Authorize.</li>
+    <li>Repo copy of the spec: <code>docs/openapi.json</code></li>
+    <li>Written guide: <code>docs/API.md</code></li>
+    <li>Postman: <code>docs/HomeServe.postman_collection.json</code></li>
+  </ul>
+</section>
+
+<section class="slide">
+  <div class="kicker">Quality</div>
+  <h2>Tests and security</h2>
+  <div class="grid">
+    <div class="card">
+      <h3>Tests</h3>
+      <p>9 pytest cases passed on 4 Nov 2026. They cover coupon math, the full book-assign-pay-review path, role denial, password reset, and the admin CSV.</p>
+    </div>
+    <div class="card">
+      <h3>Security</h3>
+      <p>21 controls in <code>docs/SECURITY.md</code>. Hashed passwords, expiring tokens, rate limits, upload limits, and no paid status without the success card or a Razorpay signature.</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="kicker">Live</div>
+  <h2>Open it.</h2>
+  <p><a href="https://juvenile-pleased-capability-scales.trycloudflare.com">https://juvenile-pleased-capability-scales.trycloudflare.com</a></p>
+  <ul>
+    <li>Health check saved in <code>docs/evidence/health.json</code>. It returned ok.</li>
+    <li>GitHub: <a href="https://github.com/enji-coder/homeserve-booking">enji-coder/homeserve-booking</a></li>
+    <li>The public process uses SQLite. <code>render.yaml</code> is the free Render web service plus free Postgres, waiting on a Render login.</li>
+    <li>Success card <code>4111 1111 1111 1111</code>. Failure card <code>4000 0000 0000 0002</code>.</li>
+  </ul>
+</section>
+
+<section class="slide">
+  <div class="kicker">Demo, five minutes</div>
+  <h2>Show this order.</h2>
+  <ol>
+    <li>Landing page, then Services.</li>
+    <li>Priya’s workspace and a booking.</li>
+    <li>Kiran accepts and assigns Amit.</li>
+    <li>Amit marks arrival and completion.</li>
+    <li>Priya pays and leaves a review.</li>
+    <li>Ananya’s admin stats, pending SparkleClean, and a CSV.</li>
+    <li>Swagger. Authorize, then call health.</li>
+  </ol>
+</section>
+
+<section class="slide title-slide">
+  <div class="kicker">Submission</div>
+  <h1>The pack is in the repo.</h1>
+  <p>Source, GitHub, live URL, schema and ER, Swagger, tests, security checklist, project doc, prompt log, and these slides.</p>
+  <p>Start at <code>submission/README.md</code>.</p>
+</section>
+
+</div>
+<div class="bar">
+  <span id="label">1 / 11</span>
+  <span>
+    <button type="button" id="prev">Back</button>
+    <button type="button" id="next">Next</button>
+  </span>
+</div>
+<script>
+  const slides = [...document.querySelectorAll(".slide")];
+  let index = 0;
+  const label = document.getElementById("label");
+  function show(next) {
+    index = (next + slides.length) % slides.length;
+    slides.forEach((slide, i) => slide.classList.toggle("active", i === index));
+    label.textContent = (index + 1) + " / " + slides.length;
+  }
+  document.getElementById("next").onclick = () => show(index + 1);
+  document.getElementById("prev").onclick = () => show(index - 1);
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "ArrowRight" || event.key === " ") show(index + 1);
+    if (event.key === "ArrowLeft") show(index - 1);
+  });
+</script>
+</body>
+</html>

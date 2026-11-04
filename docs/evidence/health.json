@@ -1,0 +1,12 @@
+{
+  "checked_at": "2026-11-04T17:40:00+05:30",
+  "url": "https://juvenile-pleased-capability-scales.trycloudflare.com/api/health",
+  "swagger": "https://juvenile-pleased-capability-scales.trycloudflare.com/docs",
+  "http_status": 200,
+  "body": {
+    "ok": true,
+    "service": "homeserve",
+    "database": "sqlite"
+  },
+  "note": "This public URL is the running app on this machine, exposed with a Cloudflare quick tunnel. database is sqlite because the Render blueprint has not been applied yet. render.yaml is ready for a free Render web service plus a free Render Postgres database."
+}
