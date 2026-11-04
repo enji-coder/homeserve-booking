@@ -76,6 +76,11 @@ def test_full_booking_payment_and_review_flow():
     assert assigned.json()["status"] == "Provider Assigned"
 
     tech = login("amit@homeserve.test")
+    too_soon = client.post(f"/api/bookings/{booking['id']}/arrive", headers=tech)
+    assert too_soon.status_code == 400
+    accepted = client.post(f"/api/bookings/{booking['id']}/accept-job", headers=tech)
+    assert accepted.status_code == 200
+    assert accepted.json()["job_accepted"] is True
     arrived = client.post(f"/api/bookings/{booking['id']}/arrive", headers=tech)
     assert arrived.status_code == 200
     done = client.post(f"/api/bookings/{booking['id']}/complete", json={"remarks": "Fan fitted and tested."}, headers=tech)
@@ -97,6 +102,19 @@ def test_full_booking_payment_and_review_flow():
 
     review = client.post("/api/reviews", json={"booking_id": booking["id"], "rating": 5, "comment": "On time."}, headers=customer)
     assert review.status_code == 200, review.text
+    notes = client.get("/api/notifications", headers=customer).json()
+    assert any(item["title"] == "Please review your visit" for item in notes)
+
+
+def test_put_profile_and_invalid_contact():
+    bad_email = client.post("/api/auth/register", json={"full_name": "Test User", "email": "not-an-email", "password": "Demo@1234", "role": "customer", "phone": "9898000099"})
+    assert bad_email.status_code == 400
+    bad_phone = client.post("/api/auth/register", json={"full_name": "Test User", "email": "new.user@homeserve.test", "password": "Demo@1234", "role": "customer", "phone": "12345"})
+    assert bad_phone.status_code == 400
+    headers = login("rahul@homeserve.test")
+    updated = client.put("/api/profile", json={"phone": "9898033302"}, headers=headers)
+    assert updated.status_code == 200
+    assert updated.json()["phone"] == "9898033302"
 
 
 def test_forgot_password_demo_code():

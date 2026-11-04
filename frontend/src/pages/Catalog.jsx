@@ -11,6 +11,7 @@ export function Services() {
   const q = params.get("q") || "";
   const category = params.get("category") || "";
   const city = params.get("city") || "";
+  const page = Math.max(1, Number(params.get("page") || "1"));
 
   useEffect(() => {
     api.get("/api/categories").then(setCategories).catch(() => {});
@@ -21,14 +22,16 @@ export function Services() {
     if (q) query.set("q", q);
     if (category) query.set("category_id", category);
     if (city) query.set("city", city);
-    query.set("page_size", "50");
+    query.set("page", String(page));
+    query.set("page_size", "6");
     api.get(`/api/services?${query.toString()}`).then(setData).catch(() => setData({ items: [], total: 0 }));
-  }, [q, category, city]);
+  }, [q, category, city, page]);
 
   function update(key, value) {
     const next = new URLSearchParams(params);
     if (value) next.set(key, value);
     else next.delete(key);
+    if (key !== "page") next.delete("page");
     setParams(next);
   }
 
@@ -60,6 +63,13 @@ export function Services() {
           ))}
         </div>
         {data.items.length === 0 ? <p className="mt-8 text-moss">Nothing matches that filter yet.</p> : null}
+        {data.total > 6 ? (
+          <div className="mt-6 flex items-center justify-between">
+            <button className={btnGhost} disabled={page <= 1} onClick={() => update("page", String(page - 1))}>Previous</button>
+            <p className="text-sm text-moss">Page {page} of {Math.ceil(data.total / 6)}</p>
+            <button className={btnGhost} disabled={page >= Math.ceil(data.total / 6)} onClick={() => update("page", String(page + 1))}>Next</button>
+          </div>
+        ) : null}
       </div>
     </div>
   );

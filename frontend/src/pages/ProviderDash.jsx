@@ -76,6 +76,7 @@ export default function ProviderDash() {
             <Stat label="Bookings" value={dash.total_bookings} />
             <Stat label="Today" value={dash.today} />
             <Stat label="Pending" value={dash.pending} />
+            <Stat label="Completed" value={dash.completed} />
             <Stat label="Earnings" value={inr(dash.earnings)} hint={`${dash.rating} ★ · ${dash.rating_count} reviews`} />
           </div>
           <div className="rounded-3xl border border-line bg-paper p-4"><Bars data={dash.monthly} /></div>

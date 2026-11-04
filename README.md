@@ -33,7 +33,7 @@ Open http://127.0.0.1:5173. Swagger UI: http://127.0.0.1:8000/docs (same page at
 
 The app creates tables on startup and inserts the demo accounts once into an empty database. After that, new bookings stay saved.
 
-- This machine and the current public URL use SQLite.
+- The current public URL uses MySQL 8. `GET /api/health` returns `"database": "mysql"`.
 - `render.yaml` is ready to attach a free Render Postgres database when the blueprint is applied. Same region for the web service and the database.
 - MySQL is supported with `DATABASE_URL=mysql+pymysql://user:pass@host:3306/homeserve` and `docs/schema.sql`.
 

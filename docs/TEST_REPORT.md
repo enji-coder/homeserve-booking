@@ -2,7 +2,7 @@
 
 Date: 4 November 2026  
 Command: `python -m pytest backend/tests -q`  
-Result: **9 passed**, 58 warnings.  
+Result: **10 passed**.  
 Raw output: `docs/pytest_output.txt`.
 
 Warnings are from `datetime.utcnow()` and from the short JWT secret used only inside the test process. They do not fail the suite.
@@ -19,13 +19,14 @@ The suite uses a fresh temporary SQLite file, `DEMO_MODE=true`, and no Razorpay 
 | test_slots_are_hourly | `backend/tests/test_billing.py` | 09:00–12:00 gives three hourly slots; a window shorter than 60 minutes gives none |
 | test_health_and_catalog | `backend/tests/test_api.py` | Health is ok, at least 8 categories, at least 10 services |
 | test_customer_cannot_open_admin | `backend/tests/test_api.py` | Priya receives HTTP 403 on `/api/admin/stats` |
-| test_full_booking_payment_and_review_flow | `backend/tests/test_api.py` | Book a free slot with WELCOME10, second booking of that slot is 409, another customer cannot read it, provider accepts and assigns, technician arrives and completes, success test card pays, invoice exists, review is stored |
+| test_full_booking_payment_and_review_flow | `backend/tests/test_api.py` | Book a free slot with WELCOME10, second booking of that slot is 409, another customer cannot read it, provider accepts and assigns, technician must accept before arrival, then completes, success test card pays, review request is sent, invoice exists, review is stored |
 | test_forgot_password_demo_code | `backend/tests/test_api.py` | Forgot-password returns a demo code and reset accepts it |
 | test_admin_report_and_provider_approval | `backend/tests/test_api.py` | Admin stats, bookings CSV, and approving the pending provider |
+| test_put_profile_and_invalid_contact | `backend/tests/test_api.py` | A bad email and a short mobile number are rejected. `PUT /api/profile` updates the phone |
 
 ## End-to-end spec
 
-`tests/e2e/customer.spec.js` and `playwright.config.js` describe a customer login and a booking page check. Playwright browsers were not installed in this session, so that spec was not executed. The API test above covers the same booking path.
+`npx playwright test` on 4 November 2026: **1 passed**. Priya logs in and the Services page opens. Screenshot: `docs/evidence/e2e-services.png`.
 
 Postman collection: `docs/HomeServe.postman_collection.json`.
 

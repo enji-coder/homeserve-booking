@@ -68,12 +68,14 @@ export default function AdminDash() {
             <Stat label="Bookings" value={stats.bookings} />
             <Stat label="Pending" value={stats.pending} />
             <Stat label="Completed" value={stats.completed} />
+            <Stat label="Cancelled" value={stats.cancelled} />
             <Stat label="Revenue" value={inr(stats.revenue)} />
             <Stat label="Commission" value={inr(stats.commission)} hint={`Provider net ${inr(stats.provider_earnings)}`} />
           </div>
           <div className="grid gap-4 md:grid-cols-2">
             <div className="rounded-3xl border border-line bg-paper p-4"><p className="mb-3 text-sm font-semibold">Monthly bookings</p><Bars data={stats.monthly} y="bookings" /></div>
             <div className="rounded-3xl border border-line bg-paper p-4"><p className="mb-3 text-sm font-semibold">Monthly revenue</p><Bars data={stats.monthly} /></div>
+            <div className="rounded-3xl border border-line bg-paper p-4 md:col-span-2"><p className="mb-3 text-sm font-semibold">Customer growth</p><Bars data={stats.growth} y="customers" /></div>
           </div>
           <div className="rounded-3xl border border-line bg-paper p-4">
             <p className="text-sm font-semibold">Popular categories</p>

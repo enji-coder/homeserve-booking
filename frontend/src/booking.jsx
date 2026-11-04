@@ -116,7 +116,10 @@ export function BookingPanel({ booking, role, techs = [], onChange }) {
             <button className={btnGhost} disabled={busy} onClick={() => run(() => api.post(`/api/bookings/${booking.id}/reject`, { reason }))}>Reject</button>
           </>
         ) : null}
-        {(role === "technician" || role === "provider") && booking.status === "Provider Assigned" ? (
+        {role === "technician" && booking.status === "Provider Assigned" && !booking.job_accepted ? (
+          <button className={btn} disabled={busy} onClick={() => run(() => api.post(`/api/bookings/${booking.id}/accept-job`))}>Accept job</button>
+        ) : null}
+        {((role === "technician" && booking.job_accepted) || role === "provider") && booking.status === "Provider Assigned" ? (
           <button className={btn} disabled={busy} onClick={() => run(() => api.post(`/api/bookings/${booking.id}/arrive`))}>Mark arrival</button>
         ) : null}
         {(role === "technician" || role === "provider") && booking.status === "In Progress" ? (
