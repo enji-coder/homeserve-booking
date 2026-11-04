@@ -18,6 +18,7 @@ from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
+from sqlalchemy import text
 from sqlalchemy.exc import IntegrityError
 
 from app.billing import generate_slots, quote
@@ -57,6 +58,7 @@ bearer = HTTPBearer(auto_error=False)
 DEMO_MODE = os.getenv("DEMO_MODE", "true").lower() == "true"
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 UPLOAD_RE = re.compile(r"^/uploads/[A-Za-z0-9._-]+$")
+CLOUDINARY_RE = re.compile(r"^https://res\.cloudinary\.com/[A-Za-z0-9_-]+/.+")
 MAX_BYTES = 5 * 1024 * 1024
 ALLOWED_EXT = {".jpg": ".jpg", ".jpeg": ".jpg", ".png": ".png", ".webp": ".webp", ".pdf": ".pdf"}
 OPEN_STATUSES = ("Pending", "Confirmed", "Provider Assigned", "In Progress")
@@ -731,8 +733,9 @@ def auth_response(db, user: User):
 
 
 @app.get("/api/health", tags=["Meta"])
-def health():
-    return {"ok": True, "service": "homeserve"}
+def health(db=Depends(get_db)):
+    db.execute(text("SELECT 1"))
+    return {"ok": True, "service": "homeserve", "database": engine.dialect.name}
 
 
 @app.get("/api/public/stats", tags=["Catalog"])
@@ -1403,7 +1406,7 @@ def add_image(booking_id: int, payload: ImageIn, user: User = Depends(current_us
     booking = load_booking(db, user, booking_id)
     if payload.kind not in ("problem", "before", "after", "document"):
         raise HTTPException(400, "Unknown image type.")
-    if not UPLOAD_RE.match(payload.url or ""):
+    if not (UPLOAD_RE.match(payload.url or "") or CLOUDINARY_RE.match(payload.url or "")):
         raise HTTPException(400, "Upload the file first.")
     if payload.kind == "problem" and user.role not in ("customer", "admin"):
         raise HTTPException(403, "Only the customer can add a problem photo.")
@@ -1817,7 +1820,7 @@ def provider_profile(payload: ProviderProfileIn, user: User = Depends(require("p
     if payload.experience_years is not None:
         provider.experience_years = max(payload.experience_years, 0)
     if payload.document_url is not None:
-        if payload.document_url and not UPLOAD_RE.match(payload.document_url):
+        if payload.document_url and not (UPLOAD_RE.match(payload.document_url) or CLOUDINARY_RE.match(payload.document_url)):
             raise HTTPException(400, "Upload the document first.")
         provider.document_url = payload.document_url
         if provider.verification_status == "rejected":
@@ -2093,6 +2096,26 @@ def earnings_csv(user: User = Depends(require("provider")), db=Depends(get_db)):
 
 
 @app.post("/api/uploads", tags=["Files"])
+def cloudinary_url(content: bytes, name: str) -> str | None:
+    cloud = os.getenv("CLOUDINARY_CLOUD_NAME", "")
+    key = os.getenv("CLOUDINARY_API_KEY", "")
+    secret = os.getenv("CLOUDINARY_API_SECRET", "")
+    if not (cloud and key and secret):
+        return None
+    timestamp = str(int(datetime.utcnow().timestamp()))
+    payload = f"public_id=homeserve/{name}&timestamp={timestamp}{secret}"
+    signature = hashlib.sha1(payload.encode()).hexdigest()
+    response = httpx.post(
+        f"https://api.cloudinary.com/v1_1/{cloud}/auto/upload",
+        data={"api_key": key, "timestamp": timestamp, "public_id": f"homeserve/{name}", "signature": signature},
+        files={"file": (name, content)},
+        timeout=30,
+    )
+    if response.status_code >= 300:
+        raise HTTPException(502, "Cloudinary could not store the file.")
+    return response.json().get("secure_url")
+
+
 async def upload(file: UploadFile = File(...), _: User = Depends(current_user)):
     ext = ALLOWED_EXT.get(Path(file.filename or "").suffix.lower())
     if not ext:
@@ -2101,6 +2124,9 @@ async def upload(file: UploadFile = File(...), _: User = Depends(current_user)):
     if len(content) > MAX_BYTES:
         raise HTTPException(400, "File is larger than 5 MB.")
     name = f"{uuid.uuid4().hex}{ext}"
+    remote = cloudinary_url(content, name)
+    if remote:
+        return {"url": remote}
     (UPLOAD_DIR / name).write_bytes(content)
     return {"url": f"/uploads/{name}"}
 

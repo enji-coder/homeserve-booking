@@ -12,6 +12,10 @@ UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 database_url = os.getenv("DATABASE_URL", f"sqlite:///{DEFAULT_DB.as_posix()}")
 if database_url.startswith("mysql://"):
     database_url = database_url.replace("mysql://", "mysql+pymysql://", 1)
+if database_url.startswith("postgres://"):
+    database_url = database_url.replace("postgres://", "postgresql+psycopg2://", 1)
+elif database_url.startswith("postgresql://"):
+    database_url = database_url.replace("postgresql://", "postgresql+psycopg2://", 1)
 
 connect_args = {"check_same_thread": False} if database_url.startswith("sqlite") else {}
 engine = create_engine(database_url, connect_args=connect_args, pool_pre_ping=True)

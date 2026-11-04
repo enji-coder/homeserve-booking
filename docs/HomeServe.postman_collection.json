@@ -1,0 +1,32 @@
+{
+  "info": { "name": "HomeServe", "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json" },
+  "variable": [{ "key": "base", "value": "http://127.0.0.1:8000" }, { "key": "token", "value": "" }],
+  "item": [
+    {
+      "name": "Login",
+      "event": [{ "listen": "test", "script": { "exec": ["pm.environment.set('token', pm.response.json().token);"] } }],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"email\": \"priya@homeserve.test\",\n  \"password\": \"Demo@1234\"\n}" },
+        "url": "{{base}}/api/auth/login"
+      }
+    },
+    {
+      "name": "Services",
+      "request": { "method": "GET", "url": "{{base}}/api/services" }
+    },
+    {
+      "name": "My bookings",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{base}}/api/bookings"
+      }
+    },
+    {
+      "name": "Health",
+      "request": { "method": "GET", "url": "{{base}}/api/health" }
+    }
+  ]
+}

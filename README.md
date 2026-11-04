@@ -31,7 +31,7 @@ npm run dev
 
 Open http://127.0.0.1:5173. API docs: http://127.0.0.1:8000/docs
 
-The database is created and seeded on startup. Default is SQLite. For MySQL set `DATABASE_URL=mysql+pymysql://user:pass@host:3306/homeserve` and apply `docs/schema.sql`.
+Locally the app uses SQLite. The live Render service uses a free Render Postgres database. Tables are created on startup and the demo accounts are inserted once into that database, so bookings you create there stay saved. MySQL is supported with `DATABASE_URL=mysql+pymysql://user:pass@host:3306/homeserve` and `docs/schema.sql`.
 
 ## Stack
 
