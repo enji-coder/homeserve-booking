@@ -1,5 +1,9 @@
 # HomeServe
 
+# https://homeserve-booking.netlify.app/
+
+Live app. Swagger: https://homeserve-booking.netlify.app/docs
+
 Home services booking platform for HomeServe Technologies. Customers book verified crews in Ahmedabad. Providers accept jobs and assign technicians. Admin verifies providers, watches revenue, and exports reports.
 
 ## Demo logins

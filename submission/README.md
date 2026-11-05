@@ -2,8 +2,8 @@
 
 HomeServe Technologies. Prepared 4 November 2026.  
 GitHub: https://github.com/enji-coder/homeserve-booking  
-Live app: https://juvenile-pleased-capability-scales.trycloudflare.com  
-Swagger: https://juvenile-pleased-capability-scales.trycloudflare.com/docs
+Live app: https://homeserve-booking.netlify.app/  
+Swagger: https://homeserve-booking.netlify.app/docs
 
 Open `docs/presentation.html` in a browser for the final presentation. Arrow keys move between slides. Print to PDF from the browser if a file copy is required.
 
